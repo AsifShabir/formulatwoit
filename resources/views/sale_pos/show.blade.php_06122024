@@ -411,7 +411,7 @@
   </div>
   <div class="modal-footer">
     @if($sell->type != 'sales_order')
-    <a class="btn btn-info" href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true&shipping=fedex"><i class="fas fa-file-alt" aria-hidden="true"></i> Generate shipping Label</a>
+    <a class="btn btn-info" href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true&shipping=fedex" target="_blank"><i class="fas fa-file-alt" aria-hidden="true"></i> Generate shipping Label</a>
 
     {{-- <a class="btn btn-success" href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a> --}}
     {{-- <a href="#" class="print-invoice btn btn-success" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a> --}}
