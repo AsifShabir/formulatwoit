@@ -697,6 +697,12 @@ class ProductController extends Controller
         $miravas = MiraviaProduct::where('business_id', $business_id)->groupBy('miravia_id')->orderBy('id')->pluck('name', 'miravia_id')->toArray();
         //$woo_products = WoocommerceProduct::where('store_id', $store_id)->orderBy('id' , 'desc')->pluck('name', 'woo_id')->toArray();
         $woo_products = WoocommerceProduct::orderBy('id' , 'desc')->pluck('name', 'woo_id')->toArray();
+        $fomatted_woo_products = [];
+        foreach($woo_products as $key => $value) {
+            $fomatted_woo_products[$key] = $value .' (#'. $key .')';
+        }
+        $woo_products = $fomatted_woo_products;
+        // dd($woo_products);
 
         $decathlon_products = DecathlonProduct::orderBy('id' , 'desc')->pluck('productName', 'fnSku')->toArray();
 
