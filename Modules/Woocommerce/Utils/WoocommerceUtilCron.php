@@ -1511,6 +1511,10 @@ class WoocommerceUtilCron extends Util
             if ((!empty($last_synced) && strtotime($order->date_modified) <= strtotime($last_synced) && !in_array($order->id, $skipped_orders)) || in_array($order->status, ['auto-draft'])) {
                 continue;
             }
+
+            if ($order->status !== 'completed') {
+                continue;
+            }
             
             //Search if order already exists
             $sell = $woocommerce_sells->filter(function ($item) use ($order) {
@@ -2089,7 +2093,7 @@ class WoocommerceUtilCron extends Util
     {
         $default_status_array = [
             'pending' => 'draft',
-            'processing' => 'final',
+            'processing' => 'draft',
             'on-hold' => 'draft',
             'completed' => 'final',
             'cancelled' => 'draft',

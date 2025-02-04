@@ -1511,6 +1511,10 @@ class WoocommerceUtil extends Util
                 continue;
             }
             
+            if ($order->status !== 'completed') {
+                continue;
+            }
+
             //Search if order already exists
             $sell = $woocommerce_sells->filter(function ($item) use ($order) {
                 return $item->woocommerce_order_id == $order->id;
@@ -2085,7 +2089,7 @@ class WoocommerceUtil extends Util
     {
         $default_status_array = [
             'pending' => 'draft',
-            'processing' => 'final',
+            'processing' => 'draft',
             'on-hold' => 'draft',
             'completed' => 'final',
             'cancelled' => 'draft',
