@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--Notes:
+   uidcliente: Customer ID (credentials).
+               Test uidcliente included.
+               Production uiddcliente will be given by GLS.
+
+   <Envio>     Do not include more than 20 to be efficient.
+
+   <Servicio>  For value 74 (EuroBusinessParcel). List of countries (at 15/05/2019):
+                GERMANY        -     49  -  DE
+                ANDORRA        -   9738  -  AD
+                AUSTRIA        -     43  -  AT
+                BELGIUM        -     32  -  BE
+                BULGARIA       -    359  -  BG
+                CYPRUS         -    301  -  CY
+                CROATIA        -    385  -  HR
+                DENMARK        -     45  -  DK
+                SLOVAKIA       -    421  -  SK
+                SLOVENIA       -    386  -  SI
+                ESTONIA        -    360  -  EE
+                FAROE ISLANDS  -  18125  -  FO
+                FINLAND        -    358  -  FI
+                FRANCE         -     33  -  FR
+                GREECE         -     30  -  GR
+                HOLLAND        -     31  -  NL
+                HUNGARY        -     36  -  HU
+                IRELAND        -    353  -  IE
+                ITALY          -     39  -  IT
+                LATVIA         -     78  -  LV
+                LITHUANIA      -     77  -  LT
+                LUXEMBOURG     -    352  -  LU
+                MALTA          -    443  -  MT
+                NORWAY         -     47  -  NO
+                POLAND         -     48  -  PL
+                PORTUGAL       -    351  -  PT
+                UNITED KINGDOM -     44  -  GB
+                CZECH REPUBLIC -     42  -  CZ
+                ROMANIA        -     40  -  RO
+                SAN MARINO     -    391  -  SM
+                SERBIA         -  18179  -  RS
+                SWEDEN         -     46  -  SE
+                SWITZERLAND    -    411  -  CH
+                VATICAN        -    396  -  VA
+
+               You can use this codes (40 for Romania) or international standar ISO code (RO).
+
+                ALBANIA        -  18093  -  AL (not EuroBusinessParcel since 01/01/2022, now is GlobalExpressParcel)
+                BOSNIA         -    387  -  BA (not EuroBusinessParcel since 01/01/2022, now is GlobalExpressParcel)
+                ICELAND        -    354  -  IS (not EuroBusinessParcel since 01/01/2022, now is GlobalExpressParcel)
+                KOSOVO         -    383  -  XK (not EuroBusinessParcel since 01/01/2022, now is GlobalExpressParcel)
+                MACEDONIA      -    389  -  MK (not EuroBusinessParcel since 01/01/2022, now is GlobalExpressParcel)
+                MONTENEGRO     -  18160  -  ME (not EuroBusinessParcel since 01/01/2022, now is GlobalExpressParcel)
+                TURKEY         -     90  -  TR (not EuroBusinessParcel since 01/02/2024, now is GlobalExpressParcel)
+
+-->
+
+<Servicios uidcliente="6BAB7A53-3B6D-4D5A-9450-702D2FAC0B11" xmlns="http://www.asmred.com/">
+  <Envio codbarras="">                                                      <!-- [mandatory] Shipment barcode (codbarras is optional). Usually empty or format 99999999999999. It is what we call "Common label". The customer prints their labels adapted to the needs of GLS, but do not want send a file to be loaded in GLS (preadvice file or manifest file), want insert shipments with  webservice. In this case the client generates the barcode (starts with 31) according to the rules of nomenclature and content indicated by GLS. Tag <PlazaDestino> is necessary in order to include <PlazaDestino>.<Nombre> and <PlazaDestino>.<Nemonico> on label-->
+    <Fecha>20/08/2014</Fecha>                                               <!-- [mandatory] Shipment date, format DD/MM/YYYY, >= today and usually today -->
+    <Portes>P</Portes>                                                      <!-- [optional] Postage type (P=prepaid / D=cod), usually "P" -->
+    <Servicio>96</Servicio>                                                  <!-- [mandatory] Service: 1=Courier, 96=BusinessParcel, 37=Economy, 74=EuroBusinessParcel, ... -->
+    <Horario>18</Horario>                                                    <!-- [mandatory] Service's time frame:  3=Express19.00, 2=14:00Service, 18=empty, 19=ParcelShop...  -->
+    <Bultos>1</Bultos>                                                      <!-- [mandatory] Number of packages of shipment -->
+    <Peso>4</Peso>                                                          <!-- [mandatory] Weigth, in kgs. Max 31.5 kgs in EuroBusinessParcel -->
+    <Volumen></Volumen>                                                     <!-- [optional] Volume, in m3 -->
+    <Declarado></Declarado>                                                 <!-- [optional] -->
+    <DNINomb></DNINomb>                                                     <!-- [optional]
+                                                                                 Service with cost (in some cases the NifDst field will be mandatory) 
+                                                                                      Empty = Nothing (No)
+                                                                                      0 = Nothing (No)
+                                                                                      1 = Dni+Name (anyone can receive it)
+                                                                                      2 = Only Dni
+                                                                                      3 = Only Name
+                                                                                      6 = "Identifícate" service (EXCLUSIVE DELIVERY, ONLY recipient can receive it, DNI is checked to allow delivery)
+                                                                                      7 = Parcel Shop (delivery on ParcelShop point code)
+                                                                                      8 = "Identifícate" + Photo (6 + both faces of Dni are captured)
+                                                                                     11 = Delivery in mailbox is possible -->
+    <FechaPrevistaEntrega></FechaPrevistaEntrega>                           <!-- [optional] -->
+    <Retorno>0</Retorno>                                                    <!-- [optional] SWAP, collect goods on delivery (0:No, 1:Yes, 2:Optional) Only available for deliveries in Spain -->
+    <Pod>N</Pod>                                                            <!-- [optional] RCS, Document in packing list to be returned (N:No, S:Yes) Only available for deliveries in Spain -->
+    <PODObligatorio>N</PODObligatorio>                                      <!-- [Deprecated]. [optional] POD, at 19/02/2015 only for EuroEstandar & France, to get the pod is mandatory. Service with cost (N:No, S:Yes) -->
+    <Aduanas><Incoterm>Cod_Incoterm</Incoterm></Aduanas>                    <!-- [mandatory] for EuroBusiness Parcel with NON UE destination (for example: Albania, Bosnia, Faroe islands, Iceland, Kosovo, Macedonia, Montenegro, Norway, San marino, Serbia, Switzerland, Turkey and Vatican).
+                                                                                   Incoterm for United Kingdom (GB) is 18 since 2021/01/01 for values until 135GBP or 150€. 
+                                                                                   For higher values in UK deliveries, incoterm should be 10.
+                                                                                   Values for Cod_Incoterm:
+                                                                                               Empty = Nothing
+                                                                                               10 =  Incoterm 10 DDP
+                                                                                                     SENDER PAYS: freight, customs clearance, taxes and duties
+                                                                                                     CONSIGNEE PAYS: no costs
+                                                                                               18 =  Incoterm 18 DDP
+                                                                                                     SENDER PAYS: freight, customs clearance, taxes and duties
+                                                                                                     CONSIGNEE PAYS: no costs
+                                                                                               20 =  Incoterm 20 DAP
+                                                                                                     SENDER PAYS:freight
+                                                                                                     CONSIGNEE PAYS: customs clearance, taxes and duties
+                                                                                               30 =  Incoterm 30 DDP, VAT not paid
+                                                                                                     SENDER PAYS: freight, customs clearance and taxes 
+                                                                                                     CONSIGNEE PAYS: duties
+                                                                                               40 =  Incoterm 40 DAP, dispatched
+                                                                                                     SENDER PAYS: freight and customs clearance
+                                                                                                     CONSIGNEE PAYS: taxes and duties
+                                                                                               50 =  Incoterm 50c DDP, low value.
+                                                                                                     SENDER PAYS: freight and customs clearance
+                                                                                                     CONSIGNEE PAYS: no costs.  -->
+    <Remite>                                                                <!-- [mandatory] Sender -->
+      <Plaza></Plaza>                                                       <!-- [optional] Origin agency -->
+      <Nombre>sender name</Nombre>                                          <!-- [mandatory], up to 80 characters -->
+      <Direccion>sender address</Direccion>                                 <!-- [mandatory], up to 80 characters -->
+      <Poblacion>sender city</Poblacion>                                    <!-- [mandatory] -->
+      <Provincia>sender province</Provincia>                                <!-- [optional] -->
+      <Pais>34</Pais>                                                       <!-- [mandatory] always 34=Spain -->
+      <CP>sender zipcode</CP>                                               <!-- [mandatory]format 99999 -->
+      <Telefono>sender phone</Telefono>                                     <!-- [optional] up to 10 characters. format 9999999999 [mandatory for EuroBusinessParcel, Servicio=74/76, because it is possible to send a sms. Optional for all other].  -->
+      <Movil>sender cellular</Movil>                                        <!-- [optional] up to 10 characters. format 9999999999 [mandatory for EuroBusinessParcel, Servicio=74/76, because it is possible to send a sms. Optional for all other] -->
+      <Email>sender email</Email>                                           <!-- [optional] up to 200 characters -->
+      <Departamento>sender department</Departamento>                        <!-- [optional] up to 50 characters -->
+      <NIF></NIF>                                                           <!-- [optional] TAX ID number / VAT -->
+      <Observaciones>Transport Notes</Observaciones>                        <!-- [optional] up to 80 characters -->
+    </Remite>
+    <Destinatario>                                                          <!-- [mandatory] Recipient (consignee) -->
+      <Codigo></Codigo>                                                     <!-- [mandatory when <Horario>=19, optional for all other] ParcelShop point code -->
+      <Plaza></Plaza>                                                       <!-- [optional] -->
+      <Nombre>delivery name</Nombre>                                        <!-- [mandatory], up to 80 characters -->
+      <Direccion>delivery address</Direccion>                               <!-- [mandatory], up to 80 characters -->
+      <Poblacion>delivery city</Poblacion>                                  <!-- [mandatory] -->
+      <Provincia>delivery province</Provincia>                              <!-- [optional] -->
+      <Pais>34</Pais>                                                       <!-- [mandatory] Delivery country. 34=Spain, 351=Portugal, ... For Andorra put <Servicio>=1 and <Horario>=3-->
+      <CP>delivery zipcode</CP>                                             <!-- [mandatory]format 99999 for Spain, 9999-999 for Portugal -->
+      <Telefono>delivery phone</Telefono>                                   <!-- [optional] up to 10 characters. format 9999999999 [mandatory for EuroBusinessParcel, Servicio=74/76, because it is possible to send a sms. Optional for all other] -->
+      <Movil>delivery cellular</Movil>                                      <!-- [optional] up to 50 characters. format 00xxx9999999999999 [mandatory for EuroBusinessParcel, Servicio=74/76, because it is possible to send a sms. Optional for all other]. Include '00' constant + country code (34 for Spain, 33 for France, etc.) + phone number (only digits) -->
+      <Email>delivery email</Email>                                         <!-- up to 200 characters [mandatory for EuroBusinessParcel, <Servicio>=74/76, optional for all other] -->
+      <Observaciones>shipment observations</Observaciones>                  <!-- [optional] up to 80 characters -->
+      <ATT>delivery Contact (useful when delivery name is a business)</ATT> <!-- [optional] up to 255 characters -->
+      <Departamento>delivery department</Departamento>                      <!-- [optional] up to 50 characters -->
+      <NIF></NIF>                                                           <!-- [optional] TAX ID number / VAT -->
+    </Destinatario>
+    <Referencias>                                                           <!-- Shipment References (optional but highly recommended, at less the tipo=C. IMPORTANT: C uppercase always) -->
+      <Referencia tipo="C">1234567AFG86TY9</Referencia>                     <!-- [one of the two mandatory] Unique shipment/order reference, up to 15 characters -->
+      <Referencia tipo="0">1234567890</Referencia>                          <!-- [one of the two mandatory] Unique shipment/order reference, up to 10 digits -->
+    </Referencias>
+    <Importes>                                                              <!-- [optional] -->
+      <Debidos>0</Debidos>                                                  <!-- [optional] always 0 or missing, GLS decides the price of deliver the shipment -->
+      <Reembolso>12,35</Reembolso>                                          <!-- [optional] Refunt amount, COD: cash on delivery (when <Portes>=P) -->
+    </Importes>
+    <Seguro tipo="">                                                        <!-- [optional] Insurance [optional]. 0=No, 1=Normalized, 2=Special value -->
+      <Descripcion></Descripcion>                                           <!-- [optional] Description Goods insured -->
+      <Importe>0</Importe>                                                  <!-- [optional] Amount of insured goods (always 0) -->
+    </Seguro>
+    <DevuelveAdicionales>                                                   <!-- [optional] in order to return additional data -->
+      <PlazaDestino />                                                      <!-- [optional] Information of last mile agency -->
+      <Etiqueta tipo="" modo=""></Etiqueta>                                 <!-- [optional] Shipment label: Format to return.
+	                                                                                   Tipo: possible values: EPL,ZPL,DPL,JPG,PNG,PDF. EuroBusinessParcel only works with ZPL, JPG, PNG and PDF
+																					   Modo: possible values: empty or "EtixBulto" (in EPL & PDF formats, labels for each parcel are returned separately) -->
+      <EtiquetaDevolucion tipo=""></EtiquetaDevolucion>                     <!-- [Deactivated] Possible return label: Format to return, possible values: ZPL,PDF -->
+    </DevuelveAdicionales>
+    <DevolverDatosASMDestino></DevolverDatosASMDestino>                     <!-- [Deprecated]. True / False, use DevuelveAdicionales.PlazaDestino -->
+    <Cliente>                                                               <!-- [optional] Customer -->
+      <Codigo></Codigo>                                                     <!-- [optional] GLS Customer Code (when customer have several codes in GLS)-->
+      <Plaza></Plaza>                                                       <!-- [optional] GLS Agency Code -->
+      <Agente></Agente>                                                     <!-- [optional] GLS Agent Code -->
+    </Cliente>
+  </Envio>
+</Servicios>
+
