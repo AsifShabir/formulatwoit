@@ -1512,7 +1512,7 @@ class WoocommerceAllUtilCron extends Util
                 continue;
             }
 
-            if ($order->status !== 'completed') {
+            if ($order->status !== 'completed' && $order->status !== 'processing') {
                 continue;
             }
             
