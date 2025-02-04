@@ -106,6 +106,10 @@ Route::get('/sync-woo-orders-all', function () {
     }
 });
 
+Route::get('/testing-route', function () {
+    return 'Working fine';
+});
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
