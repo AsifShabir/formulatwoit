@@ -2093,7 +2093,7 @@ class WoocommerceUtilCron extends Util
     {
         $default_status_array = [
             'pending' => 'draft',
-            'processing' => 'draft',
+            'processing' => 'final',
             'on-hold' => 'draft',
             'completed' => 'final',
             'cancelled' => 'draft',

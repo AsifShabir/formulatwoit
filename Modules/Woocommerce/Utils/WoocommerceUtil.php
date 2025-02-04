@@ -1760,7 +1760,7 @@ class WoocommerceUtil extends Util
 
                 $product_lines[] = $product_data;
             } else {
-                dd($product,$product_line);
+                // dd($product,$product_line);
                 return ['has_error' => [
                     'error_type' => 'order_product_not_found',
                     'order_number' => $order->number,
@@ -2089,7 +2089,7 @@ class WoocommerceUtil extends Util
     {
         $default_status_array = [
             'pending' => 'draft',
-            'processing' => 'draft',
+            'processing' => 'final',
             'on-hold' => 'draft',
             'completed' => 'final',
             'cancelled' => 'draft',
@@ -2141,7 +2141,7 @@ class WoocommerceUtil extends Util
 
         do {
             $params['page'] = $page;
-            $params['after'] = Carbon::today()->subDays(1)->format('Y-m-d 00:00:00');
+            $params['after'] = Carbon::today()->subDays(2)->format('Y-m-d 00:00:00');
             //$params['after'] = '2025-01-01 00:00:00';
             try {
                 $list = $woocommerce->get($endpoint, $params);
