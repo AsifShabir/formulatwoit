@@ -2147,8 +2147,8 @@ class WoocommerceAllUtilCron extends Util
 
         do {
             $params['page'] = $page;
-            $params['after'] = Carbon::today()->subDays(1)->format('Y-m-d 00:00:00');
-            //$params['after'] = '2025-01-01 00:00:00';
+            // $params['after'] = Carbon::today()->subDays(1)->format('Y-m-d 00:00:00');
+            $params['after'] = '2025-01-01 00:00:00';
             try {
                 $list = $woocommerce->get($endpoint, $params);
             } catch (\Exception $e) {
