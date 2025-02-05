@@ -136,6 +136,7 @@ class WoocommerceSyncOrder extends Command
 
                     if ($created !== true) {
                         $create_error_data[] = $created;
+                        break;
                     }
                 }
 
