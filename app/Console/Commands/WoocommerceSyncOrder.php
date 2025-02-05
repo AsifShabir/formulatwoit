@@ -113,6 +113,10 @@ class WoocommerceSyncOrder extends Command
                     continue;
                 }
 
+                if ($order->status !== 'completed' && $order->status !== 'processing') {
+                    continue;
+                }
+
                 //Search if order already exists
                 $sell = $woocommerce_sells->filter(function ($item) use ($order) {
                     return $item->woocommerce_order_id == $order->id;

@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
         config(['app.timezone' => $timezone]);
         date_default_timezone_set($timezone);
 
-        $schedule->command('pos:WoocommerceSyncOrder')->hourly();
+        $schedule->command('pos:WoocommerceSyncOrder')->everyTenMinutes();
         // $schedule->command('pos:HeadPressurizerSyncOrder')->hourly();
         // $schedule->command('pos:TuboPlusSyncOrder')->hourly();
         // $schedule->command('pos:Psi29SyncOrder')->hourly();
