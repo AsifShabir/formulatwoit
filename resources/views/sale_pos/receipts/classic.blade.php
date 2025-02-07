@@ -57,7 +57,7 @@
 						</tr>
 						<tr><td align="right">Date of Invoice: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
 						@if (!empty($receipt_details->due_date))
-						<tr><td align="right">Fecha de vencimiento: {{$receipt_details->due_date ?? ''}}</td></tr>
+						<tr><td align="right">Due Date: {{$receipt_details->due_date ?? ''}}</td></tr>
 						@endif
 						<tr><td align="right">Number of Invoice: {{$receipt_details->invoice_no}}</td></tr>
 				</tbody></table>
@@ -102,11 +102,12 @@
 					<tbody>
 						<tr>
 							<th>Description </th>
+							<th>Unit Price</th>
 							<th>Quantity</th>
-							<th>Price</th>
-							<th>IVA %</th>
-							<th>Total</th>
+							<th>Subtotal</th>
+							<th>VAT</th>
 						</tr>
+						@php $taxes = 0; @endphp
 						@forelse($receipt_details->lines as $line)
 						<tr>
 							<td>
@@ -140,6 +141,7 @@
 								</small>
 								@endif
 							</td>
+							<td>{{$line['unit_price']}}</td>
 							<td>
 								{{$line['quantity']}} {{$line['units']}} 
 
@@ -149,9 +151,11 @@
 								</small>
 								@endif
 							</td>
-							<td>{{$line['unit_price_before_discount']}}</td>
-							<td>21.00</td>
-							<td>{{$line['unit_price_inc_tax']}}</td>
+							<td>{{$line['line_total_exc_tax']}}</td>
+							<td>{{$line['tax']}}</td>
+							@php
+							$taxes = $line['tax_unformatted'] + $taxes;
+							@endphp
 						</tr>
 						@empty
 						<tr>
@@ -174,8 +178,8 @@
 			<td colspan="2">
 				<table width="300" align="right">
 					<tbody><tr>
-						<td>Sub Total</td>
-						<td align="right">{{$receipt_details->subtotal}}</td>
+						<td>Subtotal</td>
+						<td align="right">{{$receipt_details->subtotal_exc_tax}}</td>
 					</tr>
 					<tr>
 						<td>Shipping</td>
@@ -183,7 +187,9 @@
 					</tr>
 					<tr>
 						<td>VAT</td>
-						<td align="right">{{$receipt_details->tax}}</td>
+						<td align="right">
+						{{ number_format($taxes, '2', $receipt_details->currency['decimal_separator'], $receipt_details->currency['thousand_separator']) .' '. $receipt_details->currency['symbol'] }}
+						</td>
 					</tr>
 					<tr class="total-row">
 						<td>Total</td>

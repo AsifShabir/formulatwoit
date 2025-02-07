@@ -1487,6 +1487,9 @@ class SellController extends Controller
                             $html .= '<li>
                                         <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToInvoice'], [$row->id]).'" class="convert-draft"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_invoice').'</a>
                                     </li>';
+                            $html .= '<li>
+                                    <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToInvoice'], [$row->id]).'" class="convert-delivery-note"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_invoice').'</a>
+                                </li>';
                         }
 
                         if ($row->sub_status != 'proforma') {
