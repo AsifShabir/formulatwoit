@@ -50,12 +50,13 @@
                     <div class="form-group">
                         <label for="filter_source">Sources:</label>
                         <select class="form-control select2"  id="filter_source"  style="width: 100%;" name="filter_source" >
-                            <option selected="selected" value="">All</option>
+                            <option selected="selected" value="all_invoices">All</option>
                             <option value="29psi">29psi</option>
-                            <option value="Amazon">Amazon</option>
-                            <option value="Decathlon">Decathlon</option>
+                            <option value="direct_invoice">Direct Invoice</option>
+                            <!-- <option value="Amazon">Amazon</option> -->
+                            <!-- <option value="Decathlon">Decathlon</option> -->
                             <option value="HeadPressurizer">HeadPressurizer</option>
-                            <option value="Miravia">Miravia</option>
+                            <!-- <option value="Miravia">Miravia</option> -->
                             <option value="TuboPlus">TuboPlus</option>
                         </select>
                     </div>

@@ -3319,9 +3319,16 @@ class SellPosController extends Controller
             //only exception for woocommerce
             if (request()->input('filter_source') == 'woocommerce') {
                 $sells->whereNotNull('transactions.woocommerce_order_id');
+            } elseif (request()->input('filter_source') == 'all_invoices') {
+                $sells->whereIn('transactions.source', ['29psi', 'HeadPressurizer', 'TuboPlus', 'direct_invoice', 'proforma']);
             } else {
                 $sells->where('transactions.source', request()->input('filter_source'));
             }
+        }
+
+        if ($report_type === 'invoice') {
+            $sells->where('transactions.status', 'final');
+            $sells->whereNull('transactions.sub_status');
         }
 
         $date_range = $request->filter_date_range;
@@ -3334,6 +3341,9 @@ class SellPosController extends Controller
             $end_date = date("Y-m-d").' 23:59:59';
         }
 
+        // dd($start_date);
+        // dd($end_date);
+
         $sells->whereDate('transactions.transaction_date', '>=', $start_date)
                             ->whereDate('transactions.transaction_date', '<=', $end_date);
 
@@ -3342,17 +3352,17 @@ class SellPosController extends Controller
             $sells->with($with);
         }
         $transactions = $sells->get();
-        //dd($transactions, $sells, $start_date, $end_date, $request->all());
+        // dd($transactions, $sells, $start_date, $end_date, $request->all());
         $bulkPdfs = [];
         $filter_source = request()->input('source');
         $outputfolderName = storage_path('app/public');
         foreach($transactions as $transaction){
-            $is_delivery_note = (in_array($transaction->source, ['Decathlon','Miravia'])) ? true : false;
+            $is_delivery_note = (in_array($transaction->source, ['Decathlon', 'Miravia', 'direct_delivery_note'])) ? true : false;
             $this->downloadPdf($transaction->id,$business_id,$is_delivery_note);
             $bulkPdfs[$transaction->id]['invoice'] =  storage_path("app/public/shipping_labels/documents_".$transaction->id."/invoice.pdf");
         }
         
-        //dd($bulkPdfs);
+        // dd($bulkPdfs);
 
         if(!empty($bulkPdfs)){
             try{

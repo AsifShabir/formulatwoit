@@ -215,10 +215,7 @@
 								articles 270 and 272 of the Penal Code.
 							</td>
 							<td class="footer">
-								No CLAIMS after 2 years
-								of the useful life of the product. Destruction without
-								authorization of FORMULATWOIT S,L will be
-								buyer's charge. Contact: info@tubo.plu
+								Claims will be subject to current Spanish Legislation and depending on the condition of the product. Contact: info@tubo.plus
 							</td>
 						</tr>
 					</tbody>
