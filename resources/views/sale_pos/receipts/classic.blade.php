@@ -55,9 +55,11 @@
 								</h3>
 							</td>
 						</tr>
-						<tr><td align="right">Fecha de presupuesto: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
+						<tr><td align="right">Date of Invoice: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
+						@if (!empty($receipt_details->due_date))
 						<tr><td align="right">Fecha de vencimiento: {{$receipt_details->due_date ?? ''}}</td></tr>
-						<tr><td align="right">Numero de presupuesto: {{$receipt_details->invoice_no}}</td></tr>
+						@endif
+						<tr><td align="right">Number of Invoice: {{$receipt_details->invoice_no}}</td></tr>
 				</tbody></table>
 			</td>
 		</tr>
@@ -99,11 +101,11 @@
 				<table class="items-table" width="100%">
 					<tbody>
 						<tr>
-							<th>Descripción/Description </th>
-							<th>Cantidad/Quantity</th>
-							<th>Precio/Price</th>
+							<th>Description </th>
+							<th>Quantity</th>
+							<th>Price</th>
 							<th>IVA %</th>
-							<th>Base Imponible</th>
+							<th>Total</th>
 						</tr>
 						@forelse($receipt_details->lines as $line)
 						<tr>
@@ -172,15 +174,15 @@
 			<td colspan="2">
 				<table width="300" align="right">
 					<tbody><tr>
-						<td>Base Imponible</td>
+						<td>Sub Total</td>
 						<td align="right">{{$receipt_details->subtotal}}</td>
 					</tr>
 					<tr>
-						<td>Gastos de Envío</td>
+						<td>Shipping</td>
 						<td align="right">{{$receipt_details->shipping_charges}}</td>
 					</tr>
 					<tr>
-						<td>Tipo de IVA</td>
+						<td>VAT</td>
 						<td align="right">{{$receipt_details->tax}}</td>
 					</tr>
 					<tr class="total-row">
@@ -201,22 +203,22 @@
 					<tbody>
 						<tr>
 							<td class="footer">
-								FORMULATWOIT S.L.  VAT:<br>
-								B86840451<br>
-								IBAN: ES60 2100 1676 8102 0026 9108<br>
+								FORMULATWOIT S.L.<br>
+								VAT: B86840451<br>
+								IBAN: ES60 2100 1676 8102 0026 9108
  								BIC SWIFT CAIXESBBXXX
 							</td>
 							<td class="footer">
-								Los productos son la propiedad intelectual y
-								patentes de la empresa FORMULATWOIT S,L.
-								En España el plagio está penalizado por ley, en
-								los artículos 270 y 272 del Código Penal.
+								The products are the intellectual property and
+								patents of the company FORMULATWOIT S,L.
+								In Spain plagiarism is penalized by law, in
+								articles 270 and 272 of the Penal Code.
 							</td>
 							<td class="footer">
-								No hay RECLAMACIONES después de 2 años
-								de la vida útil del producto. Destrucción sin
-								autorización de FORMULATWOIT S,L será a
-								cargo del comprador. Contacto: info@tubo.plu
+								No CLAIMS after 2 years
+								of the useful life of the product. Destruction without
+								authorization of FORMULATWOIT S,L will be
+								buyer's charge. Contact: info@tubo.plu
 							</td>
 						</tr>
 					</tbody>

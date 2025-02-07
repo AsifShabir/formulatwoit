@@ -358,7 +358,7 @@ class Util
 
         if (! in_array($type, ['contacts', 'business_location', 'username'])) {
             $ref_year = \Carbon::now()->year;
-            $ref_number = 'rt-'.$prefix.$ref_year.''.$ref_digits;
+            $ref_number = $prefix.$ref_year.''.$ref_digits;
         } else {
             $ref_number = $prefix.$ref_digits;
         }

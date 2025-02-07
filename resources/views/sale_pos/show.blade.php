@@ -4,10 +4,14 @@
     <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
     <h4 class="modal-title" id="modalTitle"> @lang('sale.sell_details') 
       (<b>
-      @if($sell->type == 'sales_order') 
+      @if ($sell->type == 'sales_order') 
         @lang('restaurant.order_no') :</b> {{ $sell->invoice_no }}
-      @elseif($sell->source == 'Miravia' || $sell->source == 'Decathlon') 
-        @lang('lang_v1.delivery_note') :</b> {{ $sell->delivery_note_number }}
+      @elseif ($sell->source == 'Miravia' || $sell->source == 'Decathlon' || $sell->source == 'direct_delivery_note') 
+        @lang('lang_v1.delivery_note') :</b> {{ $sell->source = 'direct_delivery_note' ? $sell->invoice_no : $sell->delivery_note_number }}
+      @elseif ($sell->source == 'proforma')
+        @lang('sale.proforma_no') :</b> {{ $sell->invoice_no }}
+      @elseif ($sell->source == 'rectify')
+        @lang('sale.rectify_no') :</b> {{ $sell->invoice_no }}
       @else 
         @lang('sale.invoice_no') :</b> {{ $sell->invoice_no }}
       @endif)
@@ -28,7 +32,18 @@
         }
       @endphp
       <div class="@if(!empty($export_custom_fields)) col-sm-3 @else col-sm-4 @endif">
-        <b>@if($sell->type == 'sales_order') {{ __('restaurant.order_no') }} @else {{ __('sale.invoice_no') }} @endif:</b> #{{ $sell->invoice_no }}<br>
+        <b>
+          @if($sell->type == 'sales_order') 
+            {{ __('restaurant.order_no') }}
+          @elseif ($sell->getOriginal('source') == 'Miravia' || $sell->getOriginal('source') == 'Decathlon' || $sell->getOriginal('source') == 'direct_delivery_note') 
+            @lang('lang_v1.delivery_note')
+          @elseif ($sell->getOriginal('source') == 'proforma')
+            @lang('sale.proforma_no')
+          @elseif ($sell->getOriginal('source') == 'rectify')
+            @lang('sale.rectify_no')
+          @else 
+            {{ __('sale.invoice_no') }} 
+          @endif:</b> #{{ $sell->invoice_no }}<br>
         <b>{{ __('sale.status') }}:</b> 
           @if($sell->status == 'draft' && $sell->is_quotation == 1)
             {{ __('lang_v1.quotation') }}
@@ -425,7 +440,7 @@
     {{-- <a href="#" class="print-invoice btn btn-success" data-href="{{route('sell.printInvoice', [$sell->id])}}?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> @lang("lang_v1.packing_slip")</a> --}}
     @endif
     @can('print_invoice')
-      @if(in_array($sell->source, ['Miravia', 'Decathlon']))
+      @if(in_array($sell->getOriginal('source'), ['Miravia', 'Decathlon', 'direct_delivery_note']))
         <a href="#" class="print-invoice btn btn-primary" data-href="{{route('sell.printInvoice', [$sell->id])}}?delivery_note=true"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.delivery_note")</a>
       @else
       <a href="#" class="print-invoice btn btn-primary" data-href="{{route('sell.printInvoice', [$sell->id])}}"><i class="fa fa-print" aria-hidden="true"></i> @lang("lang_v1.print_invoice")</a>

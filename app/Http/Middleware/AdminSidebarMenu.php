@@ -342,7 +342,7 @@ class AdminSidebarMenu
                         }
                         if (in_array('add_sale', $enabled_modules) && auth()->user()->can('direct_sell.access')) {
                             $sub->url(
-                                action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'quotation']),
+                                action([\App\Http\Controllers\SellController::class, 'create'], ['status' => 'proforma']),
                                 __('lang_v1.add_quotation'),
                                 ['icon' => 'fa fas fa-plus-circle', 'active' => request()->get('status') == 'quotation']
                             );
@@ -355,13 +355,13 @@ class AdminSidebarMenu
                             );
                         }
 
-                        if (auth()->user()->can('access_sell_return') || auth()->user()->can('access_own_sell_return')) {
+                        /*if (auth()->user()->can('access_sell_return') || auth()->user()->can('access_own_sell_return')) {
                             $sub->url(
                                 action([\App\Http\Controllers\SellReturnController::class, 'index']),
                                 __('lang_v1.list_sell_return'),
                                 ['icon' => 'fa fas fa-undo', 'active' => request()->segment(1) == 'sell-return' && request()->segment(2) == null]
                             );
-                        }
+                        }*/
 
                         if ($is_admin || auth()->user()->hasAnyPermission(['access_shipping', 'access_own_shipping', 'access_commission_agent_shipping'])) {
                             $sub->url(

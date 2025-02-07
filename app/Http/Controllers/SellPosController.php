@@ -333,31 +333,34 @@ class SellPosController extends Controller
             $input['source'] = 'direct_'.$input['status'];
             $input['status'] = 'final';
         }
+        if ($input['status'] == 'proforma') {
+            $input['source'] = 'proforma';
+        }
+        if ($input['status'] == 'draft') {
+            $input['source'] = 'rectify';
+            $input['sub_status'] = 'rectify';
+        }
         if($input['source'] == 'direct_invoice'){
             $input['delivery_note_number'] = '';
         }
         if($input['source'] == 'direct_delivery_note'){
             $input['delivery_note_number'] = $input['invoice_no'];
+            $input['sub_status'] = 'delivery_note';
         }
         //Check if there is a open register, if no then redirect to Create Register screen.
         if (! $is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
             return redirect()->action([\App\Http\Controllers\CashRegisterController::class, 'create']);
         }
-        //dd($request->all());
+        // dd($request->all());
         try {
 
             $input['is_quotation'] = 0;
-            //status is send as quotation from Add sales screen.
-            if ($input['status'] == 'quotation') {
+            //status is send as proforma from Add sales screen.
+            if ($input['status'] == 'proforma') {
                 $input['status'] = 'draft';
                 $input['is_quotation'] = 1;
-                $input['sub_status'] = 'quotation';
-            } elseif ($input['status'] == 'proforma') {
-                $input['status'] = 'draft';
                 $input['sub_status'] = 'proforma';
             }
-
-            
 
             //Add change return
             $change_return = $this->dummyPaymentLine;
@@ -670,7 +673,7 @@ class SellPosController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            //dd($e);
+            // dd($e);
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
             $msg = trans('messages.something_went_wrong');
 
@@ -684,6 +687,8 @@ class SellPosController extends Controller
             $output = ['success' => 0,
                 'msg' => $msg,
             ];
+
+            // dd($msg);
         }
 
         if (! $is_direct_sale) {
@@ -699,7 +704,7 @@ class SellPosController extends Controller
                         ->action([\App\Http\Controllers\SellController::class, 'getDrafts'])
                         ->with('status', $output);
                 }
-            } elseif ($input['status'] == 'quotation') {
+            } elseif ($input['status'] == 'proforma') {
                 return redirect()
                     ->action([\App\Http\Controllers\SellController::class, 'getQuotations'])
                     ->with('status', $output);

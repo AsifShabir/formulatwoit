@@ -43,8 +43,28 @@ class TransactionUtil extends Util
     public function createSellTransaction($business_id, $input, $invoice_total, $user_id, $uf_data = true)
     {
         $sale_type = ! empty($input['type']) ? $input['type'] : 'sell';
+
+        if (isset($input['source']) && $input['source'] === 'direct_delivery_note') {
+            $input['invoice_scheme_id'] = '2';   
+        }
+
+        if (isset($input['source']) && $input['source'] === 'proforma') {
+            $input['invoice_scheme_id'] = '3';
+        }
+
+        if (isset($input['source']) && $input['source'] === 'rectify') {
+            $input['invoice_scheme_id'] = '4';   
+        }
+
+        // dd($input['invoice_scheme_id']);
+        // dd($input['invoice_no']);
+
         $invoice_scheme_id = ! empty($input['invoice_scheme_id']) ? $input['invoice_scheme_id'] : null;
         $invoice_no = ! empty($input['invoice_no']) ? $input['invoice_no'] : $this->getInvoiceNumber($business_id, $input['status'], $input['location_id'], $invoice_scheme_id, $sale_type);
+
+        if (isset($input['source']) && $input['source'] === 'direct_delivery_note') {
+            $input['delivery_note_number'] = $invoice_no;
+        }
 
         $final_total = $uf_data ? $this->num_uf($input['final_total']) : $input['final_total'];
 
@@ -68,7 +88,7 @@ class TransactionUtil extends Util
             'contact_id' => $input['contact_id'],
             'customer_group_id' => ! empty($input['customer_group_id']) ? $input['customer_group_id'] : null,
             'invoice_no' => $invoice_no,
-            'delivery_note_number' => $input['delivery_note_number'],
+            'delivery_note_number' => isset($input['delivery_note_number']) ? $input['delivery_note_number'] : '',
             'ref_no' => '',
             'source' => ! empty($input['source']) ? $input['source'] : null,
             'total_before_tax' => $invoice_total['total_before_tax'],
@@ -2304,14 +2324,13 @@ class TransactionUtil extends Util
      */
     public function getInvoiceNumber($business_id, $status, $location_id, $invoice_scheme_id = null, $sale_type = null)
     {
-        if ($status == 'final') {
+        if ($status == 'final' || $status == 'draft') {
             if (empty($invoice_scheme_id)) {
                 $scheme = $this->getInvoiceScheme($business_id, $location_id);
             } else {
                 $scheme = InvoiceScheme::where('business_id', $business_id)
                                         ->find($invoice_scheme_id);
             }
-            //dd($scheme);
             if ($scheme->scheme_type == 'blank') {
                 $prefix = $scheme->prefix;
             } else {
@@ -2321,6 +2340,10 @@ class TransactionUtil extends Util
             //Count
             if($scheme->number_type == 'sequential'){
                 $count = $scheme->start_number + $scheme->invoice_count;
+
+                //Increment the invoice count
+                $scheme->invoice_count = $scheme->invoice_count + 1;
+                $scheme->save();
             } elseif($scheme->number_type == 'random'){
                 $max = (int)str_pad(1, $scheme->total_digits, '1');
                 $count = rand(1000, 9*$max);
@@ -2331,15 +2354,6 @@ class TransactionUtil extends Util
             //Prefix + count
             $invoice_no = $prefix.$count;
 
-            //Increment the invoice count
-            $scheme->invoice_count = $scheme->invoice_count + 1;
-            $scheme->save();
-
-            return $invoice_no;
-        } elseif ($status == 'draft') {
-            $ref_count = $this->setAndGetReferenceCount('draft', $business_id);
-            $invoice_no = $this->generateReferenceNumber('draft', $ref_count, $business_id);
-
             return $invoice_no;
         } elseif ($sale_type == 'sales_order') {
             $ref_count = $this->setAndGetReferenceCount('sales_order', $business_id);
@@ -2349,6 +2363,13 @@ class TransactionUtil extends Util
         } else {
             return Str::random(5);
         }
+
+        /*elseif ($status == 'draft') {
+            $ref_count = $this->setAndGetReferenceCount('draft', $business_id);
+            $invoice_no = $this->generateReferenceNumber('draft', $ref_count, $business_id);
+
+            return $invoice_no;
+        }*/
     }
 
     private function getInvoiceScheme($business_id, $location_id)

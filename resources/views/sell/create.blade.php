@@ -1,14 +1,22 @@
 @extends('layouts.app')
 
 @php
-	if (!empty($status) && $status == 'quotation') {
+	if (!empty($status) && $status == 'proforma') {
 		$title = __('lang_v1.add_quotation');
+		$label_invoice_scheme = __('invoice.proforma_scheme');
+		$label_invoice_no = __('sale.proforma_no');
 	} else if (!empty($status) && $status == 'draft') {
 		$title = __('lang_v1.add_draft');
+		$label_invoice_scheme = __('invoice.rectify_scheme');
+		$label_invoice_no = __('sale.rectify_no');
 	}else if (!empty($status) && $status == 'delivery_note') {
-		$title = __('Delivery Note');
+		$title = __('lang_v1.add_delivery_note');
+		$label_invoice_scheme = __('invoice.delivery_note_scheme');
+		$label_invoice_no = __('sale.delivery_note_no');
 	} else {
 		$title = __('sale.add_sale');
+		$label_invoice_scheme = __('invoice.invoice_scheme');
+		$label_invoice_no = __('sale.invoice_no');
 	}
 
 	if($sale_type == 'sales_order') {
@@ -229,9 +237,9 @@
 					</div>
 				@endif
 				@if($sale_type != 'sales_order')
-					<div class="col-sm-3">
+					<div class="col-sm-3 hidden">
 						<div class="form-group">
-							{!! Form::label('invoice_scheme_id', __('invoice.invoice_scheme') . ':') !!}
+							{!! Form::label('invoice_scheme_id', $label_invoice_scheme . ':') !!}
 							{!! Form::select('invoice_scheme_id', $invoice_schemes, $default_invoice_schemes->id, ['class' => 'form-control select2', 'placeholder' => __('messages.please_select')]); !!}
 						</div>
 					</div>
@@ -239,8 +247,8 @@
 					@can('edit_invoice_number')
 					<div class="col-sm-3">
 						<div class="form-group">
-							{!! Form::label('invoice_no', $sale_type == 'sales_order' ? __('restaurant.order_no') : __('sale.invoice_no') . ':') !!}
-							{!! Form::text('invoice_no', null, ['class' => 'form-control', 'placeholder' => $sale_type == 'sales_order' ? __('restaurant.order_no') : __('sale.invoice_no')]); !!}
+							{!! Form::label('invoice_no', $sale_type == 'sales_order' ? __('restaurant.order_no') : $label_invoice_no . ':') !!}
+							{!! Form::text('invoice_no', null, ['class' => 'form-control', 'placeholder' => $sale_type == 'sales_order' ? __('restaurant.order_no') : $label_invoice_no]); !!}
 							<p class="help-block">@lang('lang_v1.keep_blank_to_autogenerate')</p>
 						</div>
 					</div>

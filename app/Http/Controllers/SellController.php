@@ -378,18 +378,19 @@ class SellController extends Controller
                         if (auth()->user()->can('sell.view') || auth()->user()->can('direct_sell.view') || auth()->user()->can('view_own_sell_only')) {
                             $html .= '<li><a href="#" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->id]).'" class="btn-modal" data-container=".view_modal"><i class="fas fa-eye" aria-hidden="true"></i> '.__('messages.view').'</a></li>';
                         }
+
                         if (! $only_shipments) {
                             if ($row->is_direct_sale == 0) {
                                 if (auth()->user()->can('sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id, 'status' => $row->source]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
                                 }
                             } elseif ($row->type == 'sales_order') {
                                 if (auth()->user()->can('so.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->source]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
                                 }
                             } else {
                                 if (auth()->user()->can('direct_sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->source]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
                                 }
                             }
 
@@ -433,22 +434,18 @@ class SellController extends Controller
 
                         if ($row->type == 'sell') {
                             if (auth()->user()->can('print_invoice')) {
-                                if(!in_array($row->source,['Decathlon','Miravia'])){
+                                if(!in_array($row->source,['Decathlon', 'Miravia', 'direct_delivery_note'])){
                                     $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'"><i class="fas fa-print" aria-hidden="true"></i> '.__('lang_v1.print_invoice').'</a></li>';
                                 }
                                 
-                                $html.='<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.packing_slip').'</a></li>';
+                                // $html.='<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.packing_slip').'</a></li>';
 
-                                if(in_array($row->source,['Decathlon','Miravia'])){
+                                if(in_array($row->source,['Decathlon', 'Miravia', 'direct_delivery_note'])){
                                     $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?delivery_note=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.delivery_note').'</a></li>';
-
 
                                     $html .= '<li>
                                         <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToProforma'], [$row->id]).'" class="convert-to-proforma"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_proforma').'</a>
                                     </li>';
-
-
-
                                 }
                             }
                             $html .= '<li class="divider"></li>';
@@ -472,10 +469,8 @@ class SellController extends Controller
 
                                 if (auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access')) {
                                     // $html .= '<li><a href="' . action([\App\Http\Controllers\SellController::class, 'duplicateSell'], [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>';
-
-                                    $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo"></i> '.__('lang_v1.sell_return').'</a></li>
-
-                                    <li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'showInvoiceUrl'], [$row->id]).'" class="view_invoice_url"><i class="fas fa-eye"></i> '.__('lang_v1.view_invoice_url').'</a></li>';
+                                    // $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo"></i> '.__('lang_v1.sell_return').'</a></li>';
+                                    $html .= '<li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'showInvoiceUrl'], [$row->id]).'" class="view_invoice_url"><i class="fas fa-eye"></i> '.__('lang_v1.view_invoice_url').'</a></li>';
                                 }
                             }
 
@@ -550,7 +545,7 @@ class SellController extends Controller
                     return $return_due_html;
                 })
                 ->editColumn('invoice_no', function ($row) use ($is_crm) {
-                    if(in_array($row->source,['Miravia','Decathlon'])){
+                    if(in_array($row->source,['Miravia', 'Decathlon', 'direct_delivery_note'])){
                         return '';
                     }
                     $invoice_no = $row->invoice_no;
@@ -597,13 +592,17 @@ class SellController extends Controller
                 })
 
                 ->editColumn('delivery_note_number', function ($row) use ($is_crm) {
-                    if(in_array($row->source,['Miravia','Decathlon'])){
+                    if(in_array($row->source,['Miravia', 'Decathlon', 'direct_delivery_note'])){
                         return $row->delivery_note_number;
                     }
                     return '';
                 })
                 ->editColumn('source', function ($row) use ($is_crm) {
                     $source = $row->source;
+                    $source = $source === 'direct_delivery_note' ? 'ERP D.N.' : $source;
+                    $source = $source === 'direct_invoice' ? 'ERP Invoice' : $source;
+                    $source = ucfirst($source);
+
                     return $source;
                 })
                 ->editColumn('shipping_status', function ($row) use ($shipping_statuses) {
@@ -905,6 +904,8 @@ class SellController extends Controller
         }
 
         $sell = $query->firstOrFail();
+
+        // dd($sell);
 
         $activities = Activity::forSubject($sell)
            ->with(['causer', 'subject'])
@@ -1332,6 +1333,7 @@ class SellController extends Controller
      */
     public function getDraftDatables()
     {
+        // dd(request()->input());
         if (request()->ajax()) {
             $business_id = request()->session()->get('user.business_id');
             $is_quotation = request()->input('is_quotation', 0);
@@ -1377,14 +1379,14 @@ class SellController extends Controller
                 );
 
             if ($is_quotation == 1) {
-                
-                //$sells->where('transactions.sub_status', 'quotation');
+                // $sells->where('transactions.sub_status', 'quotation');
                 $sells->where('transactions.sub_status', 'proforma');
 
                 if (! auth()->user()->can('quotation.view_all') && auth()->user()->can('quotation.view_own')) {
                     $sells->where('transactions.created_by', request()->session()->get('user.id'));
                 }
             } else {
+                $sells->where('transactions.sub_status', 'rectify');
                 if (! auth()->user()->can('draft.view_all') && auth()->user()->can('draft.view_own')) {
                     $sells->where('transactions.created_by', request()->session()->get('user.id'));
                 }
@@ -1451,13 +1453,13 @@ class SellController extends Controller
                             
                             if ($row->is_direct_sale == 1) {
                                 $html .= '<li>
-                                            <a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id]).'">
+                                            <a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->source]).'">
                                                 <i class="fas fa-edit"></i>'.__('messages.edit').'
                                             </a>
                                         </li>';
                             } else {
                                 $html .= '<li>
-                                            <a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id]).'">
+                                            <a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id, 'status' => $row->source]).'">
                                                 <i class="fas fa-edit"></i>'.__('messages.edit').'
                                             </a>
                                         </li>';
