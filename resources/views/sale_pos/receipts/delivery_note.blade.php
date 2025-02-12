@@ -54,8 +54,8 @@
 								</h3>
 							</td>
 						</tr>
-						<tr><td align="right">Fecha: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
-						<tr><td align="right">Numero de presupuesto: {{$receipt_details->delivery_note_number}}</td>
+						<tr><td align="right">Date of Invoice: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
+						<tr><td align="right">Number of Invoice: {{$receipt_details->delivery_note_number}}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -99,8 +99,8 @@
 				<table class="items-table" width="100%">
 					<tbody>
 						<tr>
-							<th>Producto/Product </th>
-							<th>Cantidad/Quantity</th>
+							<th>Product </th>
+							<th>Quantity</th>
 						</tr>
 						@forelse($receipt_details->lines as $line)
 						<tr>

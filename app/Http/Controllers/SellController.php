@@ -434,18 +434,18 @@ class SellController extends Controller
 
                         if ($row->type == 'sell') {
                             if (auth()->user()->can('print_invoice')) {
-                                if(!in_array($row->source,['Decathlon', 'Miravia', 'direct_delivery_note'])){
+                                if(!in_array($row->source,['Decathlon', 'Miravia', 'direct_delivery_note']) && $row->sub_status !== 'delivery_note'){
                                     $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'"><i class="fas fa-print" aria-hidden="true"></i> '.__('lang_v1.print_invoice').'</a></li>';
                                 }
                                 
                                 // $html.='<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?package_slip=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.packing_slip').'</a></li>';
 
-                                if(in_array($row->source,['Decathlon', 'Miravia', 'direct_delivery_note'])){
+                                if(in_array($row->source,['Decathlon', 'Miravia', 'direct_delivery_note']) || $row->sub_status === 'delivery_note'){
                                     $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?delivery_note=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.delivery_note').'</a></li>';
 
-                                    $html .= '<li>
+                                    /*$html .= '<li>
                                         <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToProforma'], [$row->id]).'" class="convert-to-proforma"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_proforma').'</a>
-                                    </li>';
+                                    </li>';*/
                                 }
                             }
                             $html .= '<li class="divider"></li>';
@@ -467,7 +467,7 @@ class SellController extends Controller
                                     $html .= '<li><a href="'.action([\App\Http\Controllers\TransactionPaymentController::class, 'show'], [$row->id]).'" class="view_payment_modal"><i class="fas fa-money-bill-alt"></i> '.__('purchase.view_payments').'</a></li>';
                                 }
 
-                                if (auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access')) {
+                                if ((auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access')) && $row->sub_status === null) {
                                     // $html .= '<li><a href="' . action([\App\Http\Controllers\SellController::class, 'duplicateSell'], [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>';
                                     $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo"></i> '.__('lang_v1.sell_return').'</a></li>';
                                     $html .= '<li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'showInvoiceUrl'], [$row->id]).'" class="view_invoice_url"><i class="fas fa-eye"></i> '.__('lang_v1.view_invoice_url').'</a></li>';
@@ -1472,7 +1472,7 @@ class SellController extends Controller
                             }
                         }
                         
-                        if($row->status == 'delivery_note'){
+                        if($row->status == 'delivery_note' || $row->sub_status == 'delivery_note'){
                             $html .= '<li><a href="#" class="print-invoice" data-href="'.route('sell.printInvoice', [$row->id]).'?delivery_note=true"><i class="fas fa-file-alt" aria-hidden="true"></i> '.__('lang_v1.delivery_note').'</a></li>';
                         }
 
