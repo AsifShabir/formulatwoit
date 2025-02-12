@@ -52,6 +52,8 @@
                     <tr>
                         <th>@lang('messages.date')</th>
                         <th>@lang('purchase.ref_no')</th>
+                        <th>@lang('sale.invoice_no')</th>
+                        <th>@lang('lang_v1.devliery_note')</th>
                         <th>@lang('sale.customer_name')</th>
                         <th>@lang('lang_v1.contact_no')</th>
                         <th>@lang('sale.location')</th>
@@ -114,6 +116,8 @@ $(document).ready( function(){
         columns: [
             { data: 'transaction_date', name: 'transaction_date'  },
             { data: 'invoice_no', name: 'invoice_no'},
+            { data: 'converted_invoice', name: 'converted_invoice'},
+            { data: 'converted_delivery_note', name: 'converted_delivery_note'},
             { data: 'conatct_name', name: 'conatct_name'},
             { data: 'mobile', name: 'contacts.mobile'},
             { data: 'business_location', name: 'bl.name'},

@@ -1254,7 +1254,7 @@ class TransactionUtil extends Util
             //Parent sell details(return_parent_id)
             $output['parent_invoice_no'] = Transaction::find($transaction->return_parent_id)->invoice_no;
             $output['parent_invoice_no_prefix'] = $il->invoice_no_prefix;
-        } elseif ($transaction->status == 'draft' && $transaction->sub_status == 'proforma' && ! empty($il->common_settings['proforma_heading'])) {
+        } elseif ($transaction->sub_status == 'proforma' && ! empty($il->common_settings['proforma_heading'])) {
             $output['invoice_heading'] = $il->common_settings['proforma_heading'];
         } elseif ($transaction->status == 'draft' && $transaction->is_quotation == 1) {
             $output['invoice_heading'] = $il->quotation_heading;
@@ -1939,7 +1939,7 @@ class TransactionUtil extends Util
 
         $output['design'] = $il->design;
         $output['table_tax_headings'] = ! empty($il->table_tax_headings) ? array_filter(json_decode($il->table_tax_headings), 'strlen') : null;
-        //dd($output);
+        // dd($output);
         return (object) $output;
     }
 
@@ -5067,6 +5067,7 @@ class TransactionUtil extends Util
                     'contacts.contact_id',
                     'contacts.supplier_business_name',
                     'transactions.status',
+                    'transactions.sub_status',
                     'transactions.payment_status',
                     'transactions.final_total',
                     'transactions.tax_amount',

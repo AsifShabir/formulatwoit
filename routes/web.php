@@ -241,7 +241,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/duplicate/{id}', 'SellController@duplicateSell');
     Route::get('/sells/drafts', 'SellController@getDrafts');
     Route::get('/sells/convert-to-draft/{id}', 'SellPosController@convertToInvoice');
-    Route::get('/sells/convert-to-delivery-note/{id}', 'SellPosController@convertToInvoice');
+    Route::get('/sells/convert-to-delivery-note/{id}', 'SellPosController@convertToDeliveryNote');
     Route::get('/sells/convert-to-proforma/{id}', 'SellPosController@convertToProforma');
     Route::get('/sells/quotations', 'SellController@getQuotations');
     Route::get('/sells/draft-dt', 'SellController@getDraftDatables');
@@ -262,6 +262,7 @@ Route::middleware(['setData', 'auth', 'SetSessionData', 'language', 'timezone', 
     Route::get('/sells/duplicate/{id}', [SellController::class, 'duplicateSell']);
     Route::get('/sells/drafts', [SellController::class, 'getDrafts']);
     Route::get('/sells/convert-to-draft/{id}', [SellPosController::class, 'convertToInvoice']);
+    Route::get('/sells/convert-to-delivery-note/{id}', [SellPosController::class, 'convertToDeliveryNote']);
     Route::get('/sells/convert-to-proforma/{id}', [SellPosController::class, 'convertToProforma']);
     Route::get('/sells/quotations', [SellController::class, 'getQuotations']);
     Route::get('/sells/draft-dt', [SellController::class, 'getDraftDatables']);

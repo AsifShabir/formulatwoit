@@ -1,4 +1,3 @@
-<br/>
 <table style="width:100%;">
 	<thead>
 		<tr>
@@ -8,13 +7,13 @@
 				<p class="text-right text-muted-imp" style="font-weight: bold; font-size: 18px !important">{!! $receipt_details->invoice_heading !!}</p>
 			@endif
 
-			<p class="text-right">
+			<!-- <p class="text-right">
 				@if(!empty($receipt_details->invoice_no_prefix))
 					{!! $receipt_details->invoice_no_prefix !!}
 				@endif
 
 				{{$receipt_details->invoice_no}}
-			</p>
+			</p> -->
 
 			</td>
 		</tr>
@@ -50,7 +49,7 @@
 				{!! $receipt_details->address !!}
 
 				@if(!empty($receipt_details->contact))
-					<br/>{{ $receipt_details->contact }}
+					<br/>{!! $receipt_details->contact !!}
 				@endif
 
 				@if(!empty($receipt_details->website))
@@ -94,7 +93,7 @@
 
 	<div class="col-md-6 invoice-col width-50">
 
-		<p class="text-right font-30">
+		<p class="text-right">
 			@if(!empty($receipt_details->invoice_no_prefix))
 				<span class="pull-left">{!! $receipt_details->invoice_no_prefix !!}</span>
 			@endif
@@ -110,20 +109,17 @@
 			{{$receipt_details->parent_invoice_no}}
 		</p>
 
+		<!-- <table class="table table-condensed">
 
-		{{--
-			<table class="table table-condensed">
-
-				@if(!empty($receipt_details->payments))
-					@foreach($receipt_details->payments as $payment)
-						<tr>
-							<td>{{$payment['method']}}</td>
-							<td>{{$payment['amount']}}</td>
-						</tr>
-					@endforeach
-				@endif
-			</table>
-		--}}
+			@if(!empty($receipt_details->payments))
+				@foreach($receipt_details->payments as $payment)
+					<tr>
+						<td>{{$payment['method']}}</td>
+						<td>{{$payment['amount']}}</td>
+					</tr>
+				@endforeach
+			@endif
+		</table> -->
 
 		<!-- Total Due-->
 		@if(!empty($receipt_details->total_due))
@@ -163,18 +159,16 @@
 		<b>{{ $receipt_details->customer_label ?? '' }}</b><br/>
 
 		<!-- customer info -->
-		@if(!empty($receipt_details->customer_name))
+		<!-- @if(!empty($receipt_details->customer_name))
 			{!! $receipt_details->customer_name !!}<br>
-		@endif
+		@endif -->
 		@if(!empty($receipt_details->customer_info))
 			{!! $receipt_details->customer_info !!}
 		@endif
 		@if(!empty($receipt_details->client_id_label))
-			<br/>
 			{{ $receipt_details->client_id_label }} {{ $receipt_details->client_id }}
 		@endif
 		@if(!empty($receipt_details->customer_tax_label))
-			<br/>
 			{{ $receipt_details->customer_tax_label }} {{ $receipt_details->customer_tax_number }}
 		@endif
 		@if(!empty($receipt_details->customer_custom_fields))

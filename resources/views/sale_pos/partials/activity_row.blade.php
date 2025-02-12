@@ -23,7 +23,7 @@
         <th class="width-50">@lang('sale.status'): </th> 
         <td class="width-50 text-left">
             @if(!empty($old_status))
-                <span class="label bg-info">{{$statuses[$old_status] ?? ''}}</span> --> 
+                <span class="label bg-info">{{$statuses[$old_status] ?? ''}}</span> > 
             @endif
             <span class="label bg-info">{{$statuses[$status] ?? ''}}</span>
          </td>
@@ -35,7 +35,7 @@
         <th class="width-50">@lang('lang_v1.shipping_status'): </th> 
         <td class="width-50 text-left">
             @if(!empty($old_shipping_status))
-                <span class="label bg-info">{{$shipping_statuses[$old_shipping_status] ?? ''}}</span> -->
+                <span class="label bg-info">{{$shipping_statuses[$old_shipping_status] ?? ''}}</span> >
             @endif
             <span class="label bg-info">{{$shipping_statuses[$shipping_status] ?? ''}}</span>
         </td>
@@ -47,7 +47,7 @@
     <th class="width-50">@lang('sale.total'): </th> 
     <td class="width-50 text-left">
         @if(!empty($old_final_total))
-            <span class="label bg-info">@format_currency($old_final_total)</span> --> 
+            <span class="label bg-info">@format_currency($old_final_total)</span> > 
         @endif
          <span class="label bg-info">@format_currency($final_total)</span>
      </td>
@@ -59,7 +59,7 @@
         <th class="width-50">@lang('sale.payment_status'): </th> 
         <td class="width-50 text-left">
             @if(!empty($old_payment_status))
-                <span class="label bg-info">@lang('lang_v1.' . $old_payment_status)</span> --> 
+                <span class="label bg-info">@lang('lang_v1.' . $old_payment_status)</span> > 
             @endif
                 <span class="label bg-info">@lang('lang_v1.' . $payment_status)</span>
         </td>
@@ -83,7 +83,7 @@
                     {{$status_color_in_activity[$activity->getExtraProperty('from')]['label']}}
                 </span>
             @endif
-                &nbsp; -->
+                &nbsp; >
             @if($activity->getExtraProperty('to') != 'completed')
                 <span class="label {{$status_color_in_activity[$activity->getExtraProperty('to')]['class']}}" >
                     {{$status_color_in_activity[$activity->getExtraProperty('to')]['label']}}

@@ -237,13 +237,13 @@ class SellController extends Controller
 
             if($listInvoices){
                 $sells->whereNotIn('transactions.source',['Miravia','Decathlon','Amazon','direct_delivery_note']);
+                $sells->whereNull('transactions.sub_status');
             }
 
             if($listdeliverynotes){
                 $sells->whereIn('transactions.source',['Miravia','Decathlon','direct_delivery_note']);
+                $sells->orWhere('transactions.sub_status', 'delivery_note');
             }
-
-            
 
             if (! empty(request()->input('source'))) {
                 //only exception for woocommerce
@@ -469,7 +469,7 @@ class SellController extends Controller
 
                                 if (auth()->user()->can('sell.create') || auth()->user()->can('direct_sell.access')) {
                                     // $html .= '<li><a href="' . action([\App\Http\Controllers\SellController::class, 'duplicateSell'], [$row->id]) . '"><i class="fas fa-copy"></i> ' . __("lang_v1.duplicate_sell") . '</a></li>';
-                                    // $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo"></i> '.__('lang_v1.sell_return').'</a></li>';
+                                    $html .= '<li><a href="'.action([\App\Http\Controllers\SellReturnController::class, 'add'], [$row->id]).'"><i class="fas fa-undo"></i> '.__('lang_v1.sell_return').'</a></li>';
                                     $html .= '<li><a href="'.action([\App\Http\Controllers\SellPosController::class, 'showInvoiceUrl'], [$row->id]).'" class="view_invoice_url"><i class="fas fa-eye"></i> '.__('lang_v1.view_invoice_url').'</a></li>';
                                 }
                             }
@@ -592,10 +592,10 @@ class SellController extends Controller
                 })
 
                 ->editColumn('delivery_note_number', function ($row) use ($is_crm) {
-                    if(in_array($row->source,['Miravia', 'Decathlon', 'direct_delivery_note'])){
+                    if(in_array($row->source,['Miravia', 'Decathlon', 'direct_delivery_note']) || $row->sub_status == 'delivery_note'){
                         return $row->delivery_note_number;
                     }
-                    return '';
+                    return $row->sub_status;
                 })
                 ->editColumn('source', function ($row) use ($is_crm) {
                     $source = $row->source;
@@ -1344,6 +1344,8 @@ class SellController extends Controller
 
             $sells = Transaction::leftJoin('contacts', 'transactions.contact_id', '=', 'contacts.id')
                 ->leftJoin('users as u', 'transactions.created_by', '=', 'u.id')
+                ->leftJoin('transactions as ct', 'transactions.converted_invoice', '=', 'ct.id')
+                ->leftJoin('transactions as de', 'transactions.converted_delivery_note', '=', 'de.id')
                 ->join(
                     'business_locations AS bl',
                     'transactions.location_id',
@@ -1359,15 +1361,19 @@ class SellController extends Controller
                 ->where('transactions.status', $transaction_status)
                 ->select(
                     'transactions.id',
-                    'transaction_date',
-                    'invoice_no',
+                    'transactions.transaction_date',
+                    'transactions.invoice_no',
                     'contacts.name',
                     'contacts.mobile',
                     'contacts.supplier_business_name',
                     'bl.name as business_location',
-                    'is_direct_sale',
-                    'sub_status',
-                    'source',
+                    'transactions.is_direct_sale',
+                    'transactions.sub_status',
+                    'transactions.source',
+                    'transactions.converted_invoice',
+                    'ct.invoice_no as ct_invoice_no',
+                    'transactions.converted_delivery_note',
+                    'de.invoice_no as de_invoice_no',
                     DB::raw('COUNT( DISTINCT tsl.id) as total_items'),
                     DB::raw('SUM(tsl.quantity) as total_quantity'),
                     DB::raw("CONCAT(COALESCE(u.surname, ''), ' ', COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')) as added_by"),
@@ -1400,8 +1406,8 @@ class SellController extends Controller
             if (! empty(request()->start_date) && ! empty(request()->end_date)) {
                 $start = request()->start_date;
                 $end = request()->end_date;
-                $sells->whereDate('transaction_date', '>=', $start)
-                            ->whereDate('transaction_date', '<=', $end);
+                $sells->whereDate('transactions.transaction_date', '>=', $start)
+                            ->whereDate('transactions.transaction_date', '<=', $end);
             }
 
             if (request()->has('location_id')) {
@@ -1432,7 +1438,7 @@ class SellController extends Controller
             $sells->groupBy('transactions.id');
 
             return Datatables::of($sells)
-                 ->addColumn(
+                ->addColumn(
                     'action', function ($row) {
                         
                         $html = '<div class="btn-group">
@@ -1488,7 +1494,7 @@ class SellController extends Controller
                                         <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToInvoice'], [$row->id]).'" class="convert-draft"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_invoice').'</a>
                                     </li>';
                             $html .= '<li>
-                                    <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToInvoice'], [$row->id]).'" class="convert-delivery-note"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_invoice').'</a>
+                                    <a href="'.action([\App\Http\Controllers\SellPosController::class, 'convertToDeliveryNote'], [$row->id]).'" class="convert-delivery-note"><i class="fas fa-sync-alt"></i>'.__('lang_v1.convert_to_delivery_note').'</a>
                                 </li>';
                         }
 
@@ -1554,6 +1560,18 @@ class SellController extends Controller
                 ->editColumn('total_items', '{{@format_quantity($total_items)}}')
                 ->editColumn('total_quantity', '{{@format_quantity($total_quantity)}}')
                 ->addColumn('conatct_name', '@if(!empty($supplier_business_name)) {{$supplier_business_name}}, <br>@endif {{$name}}')
+                ->editColumn('converted_invoice', function ($row) {
+                    if ($row->converted_invoice) {
+                        return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->converted_invoice]).'">'.$row->ct_invoice_no.'</button>';
+                    }
+                    return '';
+                })
+                ->editColumn('converted_delivery_note', function ($row) {
+                    if ($row->converted_delivery_note) {
+                        return '<button type="button" class="btn btn-link btn-modal" data-container=".view_modal" data-href="'.action([\App\Http\Controllers\SellController::class, 'show'], [$row->converted_delivery_note]).'">'.$row->de_invoice_no.'</button>';
+                    }
+                    return '';
+                })
                 ->filterColumn('conatct_name', function ($query, $keyword) {
                     $query->where(function ($q) use ($keyword) {
                         $q->where('contacts.name', 'like', "%{$keyword}%")
@@ -1571,7 +1589,7 @@ class SellController extends Controller
                             return '';
                         }
                     }, ])
-                ->rawColumns(['action', 'invoice_no', 'transaction_date', 'conatct_name'])
+                ->rawColumns(['action', 'invoice_no', 'transaction_date', 'conatct_name', 'converted_invoice', 'converted_delivery_note'])
                 ->make(true);
         }
     }
