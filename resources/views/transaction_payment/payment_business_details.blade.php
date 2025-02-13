@@ -1,8 +1,15 @@
 @lang('business.business'):
 <address>
     <strong>{{ $transaction->business->name }}</strong>
-    {{ $transaction->location->name ?? '' }}
-    @if(!empty($transaction->location->landmark))
+    ESB86840451<br />
+    AVENIDA DE LOS PEÑASCALES Nº14<br />
+    28250 TORRELODONES<br />
+    MADRID<br />
+    SPAIN<br />
+    <b>Mobile</b>: <a href="mailto:+34660709968">+34660709968</a><br />
+    <b>Email</b>: <a href="mailto:info@tubo.plus">info@tubo.plus</a>
+    <!-- {{ $transaction->location->name ?? '' }} -->
+    <!-- @if(!empty($transaction->location->landmark))
         <br>{{$transaction->location->landmark}}
     @endif
     @if(!empty($transaction->location->city) || !empty($transaction->location->state) || !empty($transaction->location->country))
@@ -22,5 +29,5 @@
     @endif
     @if(!empty($transaction->location->email))
         <br>@lang('business.email'): {{$transaction->location->email}}
-    @endif
+    @endif -->
 </address>

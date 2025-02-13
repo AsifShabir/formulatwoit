@@ -2839,6 +2839,20 @@ $(document).on('click', 'a.convert-draft', function(e){
     });
 });
 
+$(document).on('click', 'a.convert-to-proforma', function(e){
+    e.preventDefault();
+    swal({
+        title: LANG.sure,
+        icon: 'warning',
+        buttons: true,
+        dangerMode: true,
+    }).then(willDelete => {
+        if (willDelete) {
+            window.location = $(this).attr('href');
+        }
+    });
+});
+
 $(document).on('click', 'a.convert-delivery-note', function(e){
     e.preventDefault();
     swal({

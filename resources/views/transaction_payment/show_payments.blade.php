@@ -1,22 +1,40 @@
+@php
+$is_invoice = $transaction->type === 'sell' && $transaction->status === 'final' && $transaction->sub_status === null;
+$is_delivery_note = in_array($transaction->getOriginal('source'), ['Miravia', 'Decathlon', 'direct_delivery_note']) || $transaction->sub_status === 'delivery_note';
+$is_proforma = $transaction->sub_status === 'proforma';
+$is_rectify = $transaction->sub_status === 'rectify';
+@endphp
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close no-print" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title no-print">
                 @lang( 'purchase.view_payments' ) 
-                (
+                (<b>
                 @if(in_array($transaction->type, ['purchase', 'expense', 'purchase_return', 'payroll']))    
-                    @lang('purchase.ref_no'): {{ $transaction->ref_no }} 
+                    @lang('purchase.ref_no'):</b> {{ $transaction->ref_no }}
+                @elseif ($is_delivery_note) 
+                    @lang('lang_v1.delivery_note') :</b> {{ $transaction->source = 'direct_delivery_note' ? $transaction->invoice_no : $transaction->delivery_note_number }}
+                @elseif ($is_proforma)
+                    @lang('sale.proforma_no') :</b> {{ $transaction->invoice_no }}
+                @elseif ($is_rectify)
+                    @lang('sale.rectify_no') :</b> {{ $transaction->invoice_no }}
                 @elseif(in_array($transaction->type, ['sell', 'sell_return']))
-                    @lang('sale.invoice_no'): {{ $transaction->invoice_no }}
+                    @lang('sale.invoice_no'):</b> {{ $transaction->invoice_no }}
                 @elseif (in_array($transaction->type, ['hms_booking']))
-                    @lang('hms::lang.booking_Id'): {{ $transaction->ref_no }}
+                    @lang('hms::lang.booking_Id'):</b> {{ $transaction->ref_no }}
                 @endif
                 )   
             </h4>
             <h4 class="modal-title visible-print-block">
                 @if(in_array($transaction->type, ['purchase', 'expense', 'purchase_return', 'payroll'])) 
                     @lang('purchase.ref_no'): {{ $transaction->ref_no }}
+                @elseif ($is_delivery_note) 
+                    @lang('lang_v1.delivery_note') : {{ $transaction->source = 'direct_delivery_note' ? $transaction->invoice_no : $transaction->delivery_note_number }}
+                @elseif ($is_proforma)
+                    @lang('sale.proforma_no') : {{ $transaction->invoice_no }}
+                @elseif ($is_rectify)
+                    @lang('sale.rectify_no') : {{ $transaction->invoice_no }}
                 @elseif($transaction->type == 'sell')
                     @lang('sale.invoice_no'): {{ $transaction->invoice_no }}
                 @elseif (in_array($transaction->type, ['hms_booking']))
@@ -117,7 +135,7 @@
                                 <br>@lang('contact.mobile'): {{$transaction->contact->mobile}}
                             @endif
                             @if(!empty($transaction->contact->email))
-                                <br>@lang('business.email'): {{$transaction->contact->email}}
+                                <br>@lang('business.email'): <span style="word-wrap: break-word;">{{$transaction->contact->email}}</span>
                             @endif
                         </address>
                     </div>
@@ -125,7 +143,16 @@
                         @include('transaction_payment.payment_business_details')
                     </div>
                     <div class="col-sm-4 invoice-col">
-                        <b>@lang('sale.invoice_no'):</b> #{{ $transaction->invoice_no }}<br/>
+                        @if ($is_delivery_note) 
+                            <b>@lang('lang_v1.delivery_note'):</b> #{{ $transaction->source = 'direct_delivery_note' ? $transaction->invoice_no : $transaction->delivery_note_number }}<br/>
+                        @elseif ($is_proforma)
+                            <b>@lang('sale.proforma_no'):</b> #{{ $transaction->invoice_no }}<br/>
+                        @elseif ($is_rectify)
+                            <b>@lang('sale.rectify_no'):</b> #{{ $transaction->invoice_no }}<br/>
+                        @else
+                            <b>@lang('sale.invoice_no'):</b> #{{ $transaction->invoice_no }}<br/>
+                        @endif
+                        
                         <b>@lang('messages.date'):</b> {{ @format_date($transaction->transaction_date) }}<br/>
                         <b>@lang('purchase.payment_status'):</b> {{ __('lang_v1.' . $transaction->payment_status) }}<br>
                     </div>

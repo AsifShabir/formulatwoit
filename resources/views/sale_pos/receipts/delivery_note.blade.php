@@ -54,8 +54,8 @@
 								</h3>
 							</td>
 						</tr>
-						<tr><td align="right">Date of Invoice: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
-						<tr><td align="right">Number of Invoice: {{$receipt_details->delivery_note_number}}</td>
+						<tr><td align="right">Date of Delivery Note: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
+						<tr><td align="right">Number of Delivery Note: {{$receipt_details->delivery_note_number}}</td>
 						</tr>
 					</tbody>
 				</table>
