@@ -1145,14 +1145,10 @@ class SellPosController extends Controller
 
             //status is send as quotation from edit sales screen.
             $input['is_quotation'] = 0;
-            if ($input['status'] == 'quotation') {
-                $input['status'] = 'draft';
-                $input['is_quotation'] = 1;
-                $input['sub_status'] = 'quotation';
-            } elseif ($input['status'] == 'proforma') {
+            if ($input['status'] == 'proforma') {
                 $input['status'] = 'draft';
                 $input['sub_status'] = 'proforma';
-                $input['is_quotation'] = 0;
+                $input['is_quotation'] = 1;
             } else {
                 $input['sub_status'] = null;
                 $input['is_quotation'] = 0;
@@ -1495,6 +1491,7 @@ class SellPosController extends Controller
             $output = ['success' => 0,
                 'msg' => __('messages.something_went_wrong'),
             ];
+            dd($e);
         }
 
         if (! $is_direct_sale) {
@@ -3298,7 +3295,7 @@ class SellPosController extends Controller
     }
 
     /**
-     * Converts drafts and quotations to invoice
+     * Converts drafts and quotations to delivery note
      */
     public function convertToProforma($id)
     {
@@ -3309,27 +3306,157 @@ class SellPosController extends Controller
         try {
             $business_id = request()->session()->get('user.business_id');
 
-            $transaction = Transaction::where('business_id', $business_id)
-                            ->where('status', 'draft')
+            $transaction_before = Transaction::with(['sell_lines',
+                'sell_lines.product',
+                'sell_lines.variations',
+                'contact', ])
+                            ->where('business_id', $business_id)
+                            ->where('status', 'final')
                             ->findOrFail($id);
 
-            $transaction_before = $transaction->replicate();
+            $transaction = $transaction_before->replicate();
 
+            $is_direct_sale = $transaction->is_direct_sale;
+            //Check Customer credit limit
+            $data = [
+                'final_total' => $transaction->final_total,
+                'contact_id' => $transaction->contact_id,
+                'status' => 'draft'
+            ];
+            /*$is_credit_limit_exeeded = $this->transactionUtil->isCustomerCreditLimitExeeded($data, $id);
+
+            if ($is_credit_limit_exeeded !== false) {
+                $credit_limit_amount = $this->transactionUtil->num_f($is_credit_limit_exeeded, true);
+                $output = ['success' => 0,
+                    'msg' => __('lang_v1.cutomer_credit_limit_exeeded', ['credit_limit' => $credit_limit_amount]),
+                ];
+
+                return redirect()
+                        ->back()
+                        ->with('status', $output);
+            }*/
+
+            DB::beginTransaction();
+            //Check if there is a open register, if no then redirect to Create Register screen.
+            /*if (! $is_direct_sale && $this->cashRegisterUtil->countOpenedRegister() == 0) {
+                return redirect()->action([\App\Http\Controllers\CashRegisterController::class, 'create']);
+            }*/
+
+            $invoice_no = $this->transactionUtil->getInvoiceNumber($business_id, 'final', $transaction->location_id, 3);
+
+            $transaction->invoice_no = $invoice_no;
+            $transaction->converted_delivery_note = $transaction_before->id;
+            $transaction->transaction_date = \Carbon::now();
+            $transaction->status = 'draft';
             $transaction->sub_status = 'proforma';
+            $transaction->is_quotation = 1;
             $transaction->save();
+
+            //update product stock and replicate items
+            foreach ($transaction->sell_lines as $sell_line) {
+                $sell_line_after = $sell_line->replicate();
+                $sell_line_after->transaction_id = $transaction->id;
+                $sell_line_after->save();
+
+                /*$decrease_qty = $sell_line->quantity;
+
+                if ($sell_line->product->enable_stock == 1) {
+                    $this->productUtil->decreaseProductQuantity(
+                        $sell_line->product_id,
+                        $sell_line->variation_id,
+                        $transaction->location_id,
+                        $decrease_qty
+                    );
+                }
+
+                if ($sell_line->product->type == 'combo') {
+                    //Decrease quantity of combo as well.
+                    $combo_variations = $sell_line->variations->combo_variations;
+
+                    foreach ($combo_variations as $key => $value) {
+                        $base_unit_multiplier = 1;
+
+                        if (! empty($value['unit_id'])) {
+                            $unit = Unit::find($value['unit_id']);
+                            $base_unit_multiplier = ! empty($unit->base_unit_multiplier) ? $unit->base_unit_multiplier : $base_unit_multiplier;
+                        }
+
+                        $combo_variations[$key]['product_id'] = $sell_line->product_id;
+                        $combo_variations[$key]['product_id'] = $sell_line->product_id;
+                        $combo_variations[$key]['quantity'] = $value['quantity'] * $decrease_qty * $base_unit_multiplier;
+                    }
+                    $this->productUtil
+                        ->decreaseProductQuantityCombo(
+                            $combo_variations,
+                            $transaction->location_id
+                        );
+                }*/
+            }
+
+            //Update payment status
+            $this->transactionUtil->updatePaymentStatus($transaction->id, $transaction->final_total);
+
+            $business_details = $this->businessUtil->getDetails($business_id);
+            $pos_settings = empty($business_details->pos_settings) ? $this->businessUtil->defaultPosSettings() : json_decode($business_details->pos_settings, true);
+
+            $business = ['id' => $business_id,
+                'accounting_method' => request()->session()->get('business.accounting_method'),
+                'location_id' => $transaction->location_id,
+                'pos_settings' => $pos_settings,
+            ];
+
+            try {
+                $this->transactionUtil->mapPurchaseSell($business, $transaction->sell_lines, 'purchase');
+            } catch (\Exception $e) {
+                \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+                $msg = trans('messages.something_went_wrong');
+
+                if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
+                    $msg = $e->getMessage();
+                }
+
+                if (get_class($e) == \App\Exceptions\AdvanceBalanceNotAvailable::class) {
+                    $msg = $e->getMessage();
+                }
+
+                $output = ['success' => 0,
+                    'msg' => $msg,
+                ];
+
+                return redirect()
+                    ->action([\App\Http\Controllers\SellController::class, 'index'])
+                    ->with('status', $output);
+            }
+
+            //Auto send notification
+            // $this->notificationUtil->autoSendNotification($business_id, 'new_sale', $transaction, $transaction->contact);
 
             $this->transactionUtil->activityLog($transaction, 'edited', $transaction_before);
 
-            $output = ['success' => 1, 'msg' => __('lang_v1.converted_to_proforma_successfully')];
+            DB::commit();
+
+            $output = ['success' => 1, 'msg' => __('lang_v1.converted_to_delivery_note_successfully', ['invoice_no' => $transaction->invoice_no])];
         } catch (Exception $e) {
+            DB::rollBack();
             \Log::emergency('File:'.$e->getFile().'Line:'.$e->getLine().'Message:'.$e->getMessage());
+            $msg = trans('messages.something_went_wrong');
+
+            if (get_class($e) == \App\Exceptions\PurchaseSellMismatch::class) {
+                $msg = $e->getMessage();
+            }
+
+            if (get_class($e) == \App\Exceptions\AdvanceBalanceNotAvailable::class) {
+                $msg = $e->getMessage();
+            }
 
             $output = ['success' => 0,
-                'msg' => trans('messages.something_went_wrong'),
+                'msg' => $msg,
             ];
         }
 
-        return $output;
+        return redirect()
+                ->action([\App\Http\Controllers\SellController::class, 'getQuotations'])
+                ->with('status', $output);
     }
 
     /**

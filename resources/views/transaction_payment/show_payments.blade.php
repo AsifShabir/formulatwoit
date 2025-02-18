@@ -2,7 +2,7 @@
 $is_invoice = $transaction->type === 'sell' && $transaction->status === 'final' && $transaction->sub_status === null;
 $is_delivery_note = in_array($transaction->getOriginal('source'), ['Miravia', 'Decathlon', 'direct_delivery_note']) || $transaction->sub_status === 'delivery_note';
 $is_proforma = $transaction->sub_status === 'proforma';
-$is_rectify = $transaction->sub_status === 'rectify';
+$is_rectify = $transaction->type === 'sell_return';
 @endphp
 <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -152,7 +152,7 @@ $is_rectify = $transaction->sub_status === 'rectify';
                         @else
                             <b>@lang('sale.invoice_no'):</b> #{{ $transaction->invoice_no }}<br/>
                         @endif
-                        
+
                         <b>@lang('messages.date'):</b> {{ @format_date($transaction->transaction_date) }}<br/>
                         <b>@lang('purchase.payment_status'):</b> {{ __('lang_v1.' . $transaction->payment_status) }}<br>
                     </div>

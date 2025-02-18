@@ -221,3 +221,12 @@
 		</tr> --}}
 	</tbody>
 </table>
+
+<div class="row" style="color: #000000 !important;">
+	<div class="col-md-12"><hr/></div>
+	@if(!empty($receipt_details->additional_notes))
+	    <div class="col-xs-12">
+	    	<p>{!! nl2br($receipt_details->additional_notes) !!}</p>
+	    </div>
+    @endif
+</div>

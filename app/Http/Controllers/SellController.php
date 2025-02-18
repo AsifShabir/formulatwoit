@@ -360,7 +360,7 @@ class SellController extends Controller
             if ($this->businessUtil->isModuleEnabled('subscription')) {
                 $sells->addSelect('transactions.is_recurring', 'transactions.recur_parent_id');
             }
-            $sells->addSelect('transactions.source', 'transactions.delivery_note_number');
+            $sells->addSelect('transactions.source', 'transactions.sub_status', 'transactions.delivery_note_number');
             $sales_order_statuses = Transaction::sales_order_statuses();
             $datatable = Datatables::of($sells)
                 ->addColumn(
@@ -382,15 +382,15 @@ class SellController extends Controller
                         if (! $only_shipments) {
                             if ($row->is_direct_sale == 0) {
                                 if (auth()->user()->can('sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id, 'status' => $row->source]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellPosController::class, 'edit'], [$row->id, 'status' => $row->sub_status]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
                                 }
                             } elseif ($row->type == 'sales_order') {
                                 if (auth()->user()->can('so.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->source]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->sub_status]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
                                 }
                             } else {
                                 if (auth()->user()->can('direct_sell.update')) {
-                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->source]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
+                                    $html .= '<li><a target="_blank" href="'.action([\App\Http\Controllers\SellController::class, 'edit'], [$row->id, 'status' => $row->sub_status]).'"><i class="fas fa-edit"></i> '.__('messages.edit').'</a></li>';
                                 }
                             }
 

@@ -213,7 +213,7 @@ class TransactionUtil extends Util
         $update_date = [
             'status' => $input['status'],
             'invoice_no' => ! empty($input['invoice_no']) ? $input['invoice_no'] : $invoice_no,
-            'delivery_note_number' => $input['delivery_note_number'],
+            'delivery_note_number' => isset($input['delivery_note_number']) ? $input['delivery_note_number'] : '',
             'contact_id' => $input['contact_id'],
             'customer_group_id' => $input['customer_group_id'],
             'total_before_tax' => $invoice_total['total_before_tax'],

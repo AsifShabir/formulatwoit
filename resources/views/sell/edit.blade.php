@@ -189,9 +189,7 @@
 					</div>
 				</div>
 				@php
-					if($transaction->status == 'draft' && $transaction->is_quotation == 1){
-						$status = 'quotation';
-					} else if ($transaction->status == 'draft' && $transaction->sub_status == 'proforma') {
+					if ($transaction->status == 'draft' && $transaction->sub_status == 'proforma') {
 						$status = 'proforma';
 					} else {
 						$status = $transaction->status;

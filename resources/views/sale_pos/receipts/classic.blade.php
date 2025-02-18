@@ -55,11 +55,11 @@
 								</h3>
 							</td>
 						</tr>
-						<tr><td align="right">Date of Invoice: {{date("m/d/Y",strtotime($receipt_details->invoice_date))}}</td></tr>
+						<tr><td align="right">Date of {{ $receipt_details->invoice_heading }}: {{$receipt_details->invoice_date}}</td></tr>
 						@if (!empty($receipt_details->due_date))
 						<tr><td align="right">Due Date: {{$receipt_details->due_date ?? ''}}</td></tr>
 						@endif
-						<tr><td align="right">Number of Invoice: {{$receipt_details->invoice_no}}</td></tr>
+						<tr><td align="right">Number of {{ $receipt_details->invoice_heading }}: {{$receipt_details->invoice_no}}</td></tr>
 				</tbody></table>
 			</td>
 		</tr>
