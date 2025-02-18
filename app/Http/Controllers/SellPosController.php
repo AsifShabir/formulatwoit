@@ -1149,6 +1149,10 @@ class SellPosController extends Controller
                 $input['status'] = 'draft';
                 $input['sub_status'] = 'proforma';
                 $input['is_quotation'] = 1;
+            } elseif ($input['status'] == 'delivery_note') {
+                $input['status'] = 'final';
+                $input['sub_status'] = 'delivery_note';
+                $input['delivery_note_number'] = $input['invoice_no'];
             } else {
                 $input['sub_status'] = null;
                 $input['is_quotation'] = 0;
@@ -3345,6 +3349,8 @@ class SellPosController extends Controller
             $invoice_no = $this->transactionUtil->getInvoiceNumber($business_id, 'final', $transaction->location_id, 3);
 
             $transaction->invoice_no = $invoice_no;
+            $transaction->delivery_note_number = null;
+            $transaction->source = null;
             $transaction->converted_delivery_note = $transaction_before->id;
             $transaction->transaction_date = \Carbon::now();
             $transaction->status = 'draft';

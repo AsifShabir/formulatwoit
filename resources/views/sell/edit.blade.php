@@ -191,6 +191,8 @@
 				@php
 					if ($transaction->status == 'draft' && $transaction->sub_status == 'proforma') {
 						$status = 'proforma';
+					} elseif ($transaction->status == 'final' && $transaction->sub_status == 'delivery_note') {
+						$status = 'delivery_note';
 					} else {
 						$status = $transaction->status;
 					}
